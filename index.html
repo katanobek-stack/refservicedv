@@ -304,10 +304,10 @@ serviceType: refrigerator, ac, freezer или other — определи сам 
 var chatOpen=false,messages=[],loading=false,booked=false;
 var css2=document.createElement("style");
 css2.textContent=`
-#rsbot-toggle{position:fixed;bottom:100px;right:24px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border:none;cursor:pointer;font-size:28px;box-shadow:0 4px 20px rgba(14,165,233,.4);z-index:9999;display:flex;align-items:center;justify-content:center;transition:transform .2s}
+#rsbot-toggle{position:fixed;bottom:160px;right:24px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border:none;cursor:pointer;font-size:28px;box-shadow:0 4px 20px rgba(14,165,233,.4);z-index:9999;display:flex;align-items:center;justify-content:center;transition:transform .2s}
 #rsbot-toggle:hover{transform:scale(1.1)}
 #rsbot-toggle.open{background:linear-gradient(135deg,#64748b,#94a3b8);font-size:20px}
-#rsbot-box{position:fixed;bottom:170px;right:24px;width:370px;max-width:calc(100vw - 40px);height:480px;max-height:calc(100vh - 200px);background:#0f1f38;border-radius:20px;border:1px solid rgba(56,189,248,.15);box-shadow:0 10px 40px rgba(0,0,0,.5);z-index:9998;display:none;flex-direction:column;overflow:hidden;font-family:'PT Sans',sans-serif}
+#rsbot-box{position:fixed;bottom:230px;right:24px;width:370px;max-width:calc(100vw - 40px);height:480px;max-height:calc(100vh - 200px);background:#0f1f38;border-radius:20px;border:1px solid rgba(56,189,248,.15);box-shadow:0 10px 40px rgba(0,0,0,.5);z-index:9998;display:none;flex-direction:column;overflow:hidden;font-family:'PT Sans',sans-serif}
 #rsbot-box.open{display:flex}
 #rsbot-hdr{background:linear-gradient(135deg,#0f2040,#132d5e);padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(56,189,248,.12)}
 #rsbot-hdr-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
@@ -327,7 +327,7 @@ css2.textContent=`
 #rsbot-input:focus{border-color:#0ea5e9}#rsbot-input::placeholder{color:#475569}
 #rsbot-send{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 #rsbot-send:disabled{opacity:.4;cursor:not-allowed}
-@media(max-width:480px){#rsbot-box{right:10px;left:10px;width:auto;bottom:160px;max-height:calc(100vh - 180px)}#rsbot-toggle{bottom:92px;right:16px}}
+@media(max-width:480px){#rsbot-box{right:10px;left:10px;width:auto;bottom:220px;max-height:calc(100vh - 180px)}#rsbot-toggle{bottom:152px;right:16px}}
 `;
 document.head.appendChild(css2);
 var toggle=document.createElement("button");toggle.id="rsbot-toggle";toggle.innerHTML="❄️";
