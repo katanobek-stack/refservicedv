@@ -266,75 +266,28 @@ for(let i=0;i<25;i++){const p=document.createElement('div');p.className='frost-p
 function toggleMenu(){document.getElementById('mobileMenu').classList.toggle('open')}
 </script>
 
-<!-- ═══ РефСервисДВ ИИ-Ассистент ═══ -->
+
+<!-- ═══ РефСервисДВ ИИ-Ассистент v2 ═══ -->
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
 import{getFirestore,collection,addDoc,serverTimestamp}from"https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 var fbApp=initializeApp({apiKey:"AIzaSyA2r9KzhWVPIvg0L8EoOb6vQHpk4SCZ8dw",authDomain:"coolservice-crm.firebaseapp.com",projectId:"coolservice-crm",storageBucket:"coolservice-crm.firebasestorage.app",messagingSenderId:"871007711725",appId:"1:871007711725:web:0f717e2edc84e6907877e4"});
 var db=getFirestore(fbApp);
 var WORKER="https://coolservice-bot.katanobek.workers.dev";
-var SYS=`Ты — ИИ-ассистент автосервиса "РефСервисДВ" во Владивостоке. Специализация: ремонт рефрижераторов, автокондиционеров и морозильных камер.
+function formatDateRu(ds){var d=new Date(ds+"T12:00:00");var dn=["Вс","Пн","Вт","Ср","Чт","Пт","Сб"];var mn=["янв","фев","мар","апр","май","июн","июл","авг","сен","окт","ноя","дек"];return dn[d.getDay()]+", "+d.getDate()+" "+mn[d.getMonth()]}
+function getAvailDates(){var out=[];var d=new Date();d.setDate(d.getDate()+1);while(out.length<10){if(d.getDay()>=1&&d.getDay()<=5){out.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"))}d.setDate(d.getDate()+1)}return out}
+var SLOTS=["10:00","11:00","12:00","13:00","14:00","15:00","16:00"];
+var SYS='Ты — ИИ-ассистент автосервиса "РефСервисДВ" во Владивостоке. Специализация: ремонт рефрижераторов, автокондиционеров и морозильных камер.\n\nЗадача — быстро собрать данные клиента. Будь дружелюбным и кратким (2-3 предложения макс).\n\nПРАВИЛА:\n1. Задавай вопросы ГРУППАМИ по 2-3 сразу.\n2. Собери: имя, телефон, марку авто, гос. номер, описание проблемы.\n3. НЕ спрашивай дату и время — клиент выберет из календаря.\n4. Тип оборудования определи сам из описания.\n5. Не обещай цены — стоимость после диагностики.\n6. На вопросы про услуги — кратко ответь и верни к записи.\n\nСЦЕНАРИЙ:\n- Приветствие: Здравствуйте! Я ассистент РефСервисДВ. Нужен ремонт или диагностика?\n- Спроси сразу имя и телефон\n- Затем: марку авто, гос. номер и что сломалось\n- Когда собрано — покажи итог и скажи что сейчас появится календарь для выбора времени\n- Затем СРАЗУ выведи JSON:\n<BOOKING_READY>\n{"name":"Имя","phone":"Телефон","brand":"Марка","plate":"Номер","serviceType":"тип","problem":"Описание"}\n</BOOKING_READY>\nserviceType: refrigerator, ac, freezer, other';
 
-Твоя задача — быстро записать клиента на диагностику или ремонт. Будь дружелюбным, кратким и конкретным.
-
-ВАЖНЫЕ ПРАВИЛА:
-1. Отвечай коротко — максимум 2-3 предложения за раз.
-2. Задавай вопросы ГРУППАМИ, не по одному. Можно спросить 2-3 вещи сразу.
-3. Вот что нужно собрать: имя, телефон, марка и номер авто, что сломалось, когда хочет приехать.
-4. Тип оборудования (рефрижератор/кондиционер/морозильная) определи сам из описания проблемы.
-5. График: Пн-Пт 9:00-18:00. Выходные — не работаем, предложи ближайший рабочий день.
-6. Не обещай цены. Скажи что точная стоимость будет после диагностики.
-7. Если клиент спрашивает про услуги — кратко ответь и верни к записи.
-
-СЦЕНАРИЙ РАЗГОВОРА:
-- Приветствие: "Здравствуйте! Я ассистент РефСервисДВ. Чем могу помочь — нужен ремонт или диагностика?"
-- После ответа клиента: спроси сразу имя и телефон
-- Затем: марку авто, гос. номер и что именно сломалось — одним вопросом
-- Затем: когда удобно приехать (дата и время)
-- Итого: весь разговор за 3-4 сообщения с каждой стороны
-
-КОГДА ВСЕ ДАННЫЕ СОБРАНЫ:
-Покажи клиенту итог и спроси "Всё верно? Записываем?"
-После подтверждения — выведи JSON между тегами:
-<BOOKING_DATA>
-{"name":"Имя","phone":"Телефон","brand":"Марка модель","plate":"Госномер","serviceType":"тип","problem":"Описание","date":"2026-03-25","time":"10:00"}
-</BOOKING_DATA>
-serviceType: refrigerator, ac, freezer или other — определи сам из описания проблемы.`;
-
-var chatOpen=false,messages=[],loading=false,booked=false;
+var chatOpen=false,messages=[],loading=false,booked=false,bData=null;
 var css2=document.createElement("style");
-css2.textContent=`
-#rsbot-toggle{position:fixed;bottom:160px;right:24px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border:none;cursor:pointer;font-size:28px;box-shadow:0 4px 20px rgba(14,165,233,.4);z-index:9999;display:flex;align-items:center;justify-content:center;transition:transform .2s}
-#rsbot-toggle:hover{transform:scale(1.1)}
-#rsbot-toggle.open{background:linear-gradient(135deg,#64748b,#94a3b8);font-size:20px}
-#rsbot-box{position:fixed;bottom:230px;right:24px;width:370px;max-width:calc(100vw - 40px);height:480px;max-height:calc(100vh - 200px);background:#0f1f38;border-radius:20px;border:1px solid rgba(56,189,248,.15);box-shadow:0 10px 40px rgba(0,0,0,.5);z-index:9998;display:none;flex-direction:column;overflow:hidden;font-family:'PT Sans',sans-serif}
-#rsbot-box.open{display:flex}
-#rsbot-hdr{background:linear-gradient(135deg,#0f2040,#132d5e);padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(56,189,248,.12)}
-#rsbot-hdr-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-#rsbot-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
-#rsbot-msgs::-webkit-scrollbar{width:4px}#rsbot-msgs::-webkit-scrollbar-thumb{background:#475569;border-radius:4px}
-.rsbot-msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;word-wrap:break-word;animation:rsbot-fade .3s ease}
-.rsbot-msg.bot{background:rgba(56,189,248,.1);color:#e2e8f0;border:1px solid rgba(56,189,248,.1);align-self:flex-start;border-bottom-left-radius:4px}
-.rsbot-msg.user{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
-.rsbot-msg.system{background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.15);align-self:center;text-align:center;font-size:12px;font-weight:600}
-.rsbot-typing{display:flex;gap:4px;padding:10px 14px;align-self:flex-start}
-.rsbot-typing span{width:8px;height:8px;border-radius:50%;background:rgba(56,189,248,.4);animation:rsbot-dot 1.2s infinite}
-.rsbot-typing span:nth-child(2){animation-delay:.2s}.rsbot-typing span:nth-child(3){animation-delay:.4s}
-@keyframes rsbot-dot{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
-@keyframes rsbot-fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-#rsbot-input-row{padding:10px 14px;border-top:1px solid rgba(56,189,248,.1);display:flex;gap:8px;background:#0a1628}
-#rsbot-input{flex:1;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05);color:#e2e8f0;font-size:14px;font-family:inherit;outline:none;resize:none;min-height:40px;max-height:80px}
-#rsbot-input:focus{border-color:#0ea5e9}#rsbot-input::placeholder{color:#475569}
-#rsbot-send{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-#rsbot-send:disabled{opacity:.4;cursor:not-allowed}
-@media(max-width:480px){#rsbot-box{right:10px;left:10px;width:auto;bottom:220px;max-height:calc(100vh - 180px)}#rsbot-toggle{bottom:152px;right:16px}}
-`;
+css2.textContent='#rsbot-toggle{position:fixed;bottom:160px;right:24px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border:none;cursor:pointer;font-size:28px;box-shadow:0 4px 20px rgba(14,165,233,.4);z-index:9999;display:flex;align-items:center;justify-content:center;transition:transform .2s}#rsbot-toggle:hover{transform:scale(1.1)}#rsbot-toggle.open{background:linear-gradient(135deg,#64748b,#94a3b8);font-size:20px}#rsbot-box{position:fixed;bottom:230px;right:24px;width:370px;max-width:calc(100vw - 40px);height:480px;max-height:calc(100vh - 250px);background:#0f1f38;border-radius:20px;border:1px solid rgba(56,189,248,.15);box-shadow:0 10px 40px rgba(0,0,0,.5);z-index:9998;display:none;flex-direction:column;overflow:hidden;font-family:PT Sans,sans-serif}#rsbot-box.open{display:flex}#rsbot-hdr{background:linear-gradient(135deg,#0f2040,#132d5e);padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(56,189,248,.12)}#rsbot-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}#rsbot-msgs::-webkit-scrollbar{width:4px}#rsbot-msgs::-webkit-scrollbar-thumb{background:#475569;border-radius:4px}.rsbot-msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;word-wrap:break-word;animation:rsbot-fade .3s ease}.rsbot-msg.bot{background:rgba(56,189,248,.1);color:#e2e8f0;border:1px solid rgba(56,189,248,.1);align-self:flex-start;border-bottom-left-radius:4px}.rsbot-msg.user{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}.rsbot-msg.system{background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.15);align-self:center;text-align:center;font-size:12px;font-weight:600}.rsbot-typing{display:flex;gap:4px;padding:10px 14px;align-self:flex-start}.rsbot-typing span{width:8px;height:8px;border-radius:50%;background:rgba(56,189,248,.4);animation:rsbot-dot 1.2s infinite}.rsbot-typing span:nth-child(2){animation-delay:.2s}.rsbot-typing span:nth-child(3){animation-delay:.4s}@keyframes rsbot-dot{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}@keyframes rsbot-fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}#rsbot-input-row{padding:10px 14px;border-top:1px solid rgba(56,189,248,.1);display:flex;gap:8px;background:#0a1628}#rsbot-input{flex:1;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05);color:#e2e8f0;font-size:14px;font-family:inherit;outline:none;resize:none;min-height:40px;max-height:80px}#rsbot-input:focus{border-color:#0ea5e9}#rsbot-input::placeholder{color:#475569}#rsbot-send{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}#rsbot-send:disabled{opacity:.4;cursor:not-allowed}.rsbot-picker{padding:12px;animation:rsbot-fade .3s ease}.rsbot-picker-title{font-size:13px;font-weight:600;color:#f1f5f9;margin-bottom:10px;text-align:center}.rsbot-dates{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px}.rsbot-dates::-webkit-scrollbar{height:3px}.rsbot-dates::-webkit-scrollbar-thumb{background:#475569;border-radius:3px}.rsbot-date-btn{flex-shrink:0;padding:8px 12px;border-radius:10px;border:1px solid rgba(56,189,248,.2);background:rgba(56,189,248,.05);color:#94a3b8;font-size:12px;font-family:inherit;cursor:pointer;text-align:center;transition:all .2s;min-width:70px}.rsbot-date-btn:hover{border-color:#38bdf8;color:#38bdf8}.rsbot-date-btn.sel{border-color:#0ea5e9;background:rgba(14,165,233,.2);color:#38bdf8;font-weight:600}.rsbot-slots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.rsbot-slot-btn{padding:8px 4px;border-radius:8px;border:1px solid rgba(56,189,248,.15);background:rgba(56,189,248,.03);color:#cbd5e1;font-size:13px;font-family:inherit;cursor:pointer;text-align:center;transition:all .2s;font-weight:500}.rsbot-slot-btn:hover{border-color:#0ea5e9;background:rgba(14,165,233,.15);color:#38bdf8}.rsbot-slot-btn.sel{border-color:#0ea5e9;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-weight:600}.rsbot-confirm-btn{width:100%;margin-top:10px;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 15px rgba(14,165,233,.3)}.rsbot-confirm-btn:disabled{opacity:.4;cursor:not-allowed}@media(max-width:480px){#rsbot-box{right:10px;left:10px;width:auto;bottom:220px;max-height:calc(100vh - 240px)}#rsbot-toggle{bottom:152px;right:16px}.rsbot-slots{grid-template-columns:repeat(3,1fr)}}';
 document.head.appendChild(css2);
-var toggle=document.createElement("button");toggle.id="rsbot-toggle";toggle.innerHTML="❄️";
-toggle.onclick=function(){chatOpen=!chatOpen;toggle.className=chatOpen?"open":"";toggle.innerHTML=chatOpen?"✕":"❄️";box.className=chatOpen?"open":"";if(chatOpen&&!messages.length)startChat()};
+var toggle=document.createElement("button");toggle.id="rsbot-toggle";toggle.innerHTML="\u2744\uFE0F";
+toggle.onclick=function(){chatOpen=!chatOpen;toggle.className=chatOpen?"open":"";toggle.innerHTML=chatOpen?"\u2715":"\u2744\uFE0F";box.className=chatOpen?"open":"";if(chatOpen&&!messages.length)startChat()};
 document.body.appendChild(toggle);
 var box=document.createElement("div");box.id="rsbot-box";
-box.innerHTML='<div id="rsbot-hdr"><div id="rsbot-hdr-icon">❄️</div><div><div style="font-size:14px;font-weight:600;color:#f1f5f9">РефСервисДВ</div><div style="font-size:11px;color:#64748b">ИИ-ассистент · Онлайн-запись</div></div></div><div id="rsbot-msgs"></div><div id="rsbot-input-row"><textarea id="rsbot-input" placeholder="Напишите сообщение..." rows="1"></textarea><button id="rsbot-send">➤</button></div>';
+box.innerHTML='<div id="rsbot-hdr"><div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">\u2744\uFE0F</div><div><div style="font-size:14px;font-weight:600;color:#f1f5f9">\u0420\u0435\u0444\u0421\u0435\u0440\u0432\u0438\u0441\u0414\u0412</div><div style="font-size:11px;color:#64748b">\u0418\u0418-\u0430\u0441\u0441\u0438\u0441\u0442\u0435\u043d\u0442 \u00b7 \u041e\u043d\u043b\u0430\u0439\u043d-\u0437\u0430\u043f\u0438\u0441\u044c</div></div></div><div id="rsbot-msgs"></div><div id="rsbot-input-row"><textarea id="rsbot-input" placeholder="\u041d\u0430\u043f\u0438\u0448\u0438\u0442\u0435 \u0441\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435..." rows="1"></textarea><button id="rsbot-send">\u27A4</button></div>';
 document.body.appendChild(box);
 var msgsEl=document.getElementById("rsbot-msgs"),inputEl=document.getElementById("rsbot-input"),sendBtn=document.getElementById("rsbot-send");
 inputEl.addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();doSend()}});
@@ -343,13 +296,35 @@ inputEl.addEventListener("input",function(){inputEl.style.height="40px";inputEl.
 function addMsg(t,c){var d=document.createElement("div");d.className="rsbot-msg "+c;d.textContent=t;msgsEl.appendChild(d);msgsEl.scrollTop=msgsEl.scrollHeight}
 function showTyp(){var d=document.createElement("div");d.className="rsbot-typing";d.id="rsbot-typ";d.innerHTML="<span></span><span></span><span></span>";msgsEl.appendChild(d);msgsEl.scrollTop=msgsEl.scrollHeight}
 function hideTyp(){var e=document.getElementById("rsbot-typ");if(e)e.remove()}
-function startChat(){messages=[];loading=true;showTyp();
-callAI([{role:"user",content:"Привет"}]).then(function(r){hideTyp();loading=false;messages.push({role:"user",content:"Привет"});messages.push({role:"assistant",content:r});addMsg(r,"bot")}).catch(function(){hideTyp();loading=false;addMsg("Не удалось подключиться. Попробуйте позже.","bot")})}
-function doSend(){if(loading||booked)return;var t=inputEl.value.trim();if(!t)return;inputEl.value="";inputEl.style.height="40px";addMsg(t,"user");messages.push({role:"user",content:t});loading=true;sendBtn.disabled=true;showTyp();
-callAI(messages).then(function(r){hideTyp();loading=false;sendBtn.disabled=false;messages.push({role:"assistant",content:r});var bm=r.match(/<BOOKING_DATA>([\s\S]*?)<\/BOOKING_DATA>/);if(bm){var cr=r.replace(/<BOOKING_DATA>[\s\S]*?<\/BOOKING_DATA>/,"").trim();if(cr)addMsg(cr,"bot");try{saveBooking(JSON.parse(bm[1].trim()))}catch(e){addMsg("Ошибка обработки. Попробуйте ещё раз.","bot")}}else{addMsg(r,"bot")}}).catch(function(){hideTyp();loading=false;sendBtn.disabled=false;addMsg("Ошибка соединения. Попробуйте ещё раз.","bot")})}
-function callAI(m){return fetch(WORKER,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({system:SYS,messages:m})}).then(function(r){return r.json()}).then(function(d){if(d.content&&d.content[0]&&d.content[0].text)return d.content[0].text;throw new Error(d.error||"No response")})}
-function saveBooking(d){var st={refrigerator:"refrigerator",ac:"ac",freezer:"freezer",other:"other"};var svc=st[d.serviceType]||"other";var dt=d.date+"T"+(d.time||"09:00");var vid="v"+Date.now().toString(36);
-addDoc(collection(db,"clients"),{name:d.name||"Новый клиент",phone:d.phone||"",vehicles:[{id:vid,plate:(d.plate||"").toUpperCase(),brand:d.brand||"",serviceType:svc,notes:"",photo:null}],repairs:[],appointments:[{id:"a"+Date.now().toString(36),vehicleId:vid,date:dt,serviceType:svc,description:"\u{1F916} Онлайн-запись: "+(d.problem||"Диагностика")}],createdAt:serverTimestamp(),source:"website-bot"}).then(function(){booked=true;addMsg("\u2705 Запись создана! Ждём вас в РефСервисДВ.","system");inputEl.placeholder="Запись создана. Спасибо!";inputEl.disabled=true;sendBtn.disabled=true}).catch(function(e){addMsg("Не удалось сохранить. Позвоните: +7 902 555 1200","bot");console.error(e)})}
+function showPicker(){
+  document.getElementById("rsbot-input-row").style.display="none";
+  var pk=document.createElement("div");pk.className="rsbot-picker";pk.id="rsbot-picker";
+  pk.innerHTML='<div class="rsbot-picker-title">\uD83D\uDCC5 \u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0434\u0430\u0442\u0443 \u0438 \u0432\u0440\u0435\u043c\u044f</div>';
+  var dr=document.createElement("div");dr.className="rsbot-dates";
+  var dates=getAvailDates(),selDate=null,selTime=null;
+  dates.forEach(function(dt,i){
+    var b=document.createElement("button");b.className="rsbot-date-btn";b.textContent=formatDateRu(dt);b.dataset.date=dt;
+    b.onclick=function(){selDate=dt;selTime=null;dr.querySelectorAll(".rsbot-date-btn").forEach(function(x){x.classList.remove("sel")});b.classList.add("sel");rSlots();updCf()};
+    if(i===0){b.classList.add("sel");selDate=dt}dr.appendChild(b)});
+  pk.appendChild(dr);
+  var sl=document.createElement("div");sl.className="rsbot-slots";sl.id="rsbot-sl";pk.appendChild(sl);
+  var cf=document.createElement("button");cf.className="rsbot-confirm-btn";cf.id="rsbot-cf";cf.textContent="\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0432\u0440\u0435\u043c\u044f";cf.disabled=true;
+  cf.onclick=function(){if(!selDate||!selTime)return;cf.disabled=true;cf.textContent="\u0417\u0430\u043f\u0438\u0441\u044b\u0432\u0430\u0435\u043c...";bData.date=selDate;bData.time=selTime;addMsg("\uD83D\uDCC5 "+formatDateRu(selDate)+" \u0432 "+selTime,"user");pk.remove();saveBooking(bData)};
+  pk.appendChild(cf);
+  msgsEl.parentNode.insertBefore(pk,document.getElementById("rsbot-input-row"));
+  function rSlots(){sl.innerHTML="";selTime=null;SLOTS.forEach(function(s){var b=document.createElement("button");b.className="rsbot-slot-btn";b.textContent=s;b.onclick=function(){selTime=s;sl.querySelectorAll(".rsbot-slot-btn").forEach(function(x){x.classList.remove("sel")});b.classList.add("sel");updCf()};sl.appendChild(b)})}
+  function updCf(){cf.disabled=!(selDate&&selTime);cf.textContent=selDate&&selTime?"\u0417\u0430\u043f\u0438\u0441\u0430\u0442\u044c\u0441\u044f \u043d\u0430 "+formatDateRu(selDate)+" \u0432 "+selTime:"\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0432\u0440\u0435\u043c\u044f"}
+  rSlots();msgsEl.scrollTop=msgsEl.scrollHeight}
+function startChat(){messages=[];loading=true;showTyp();callAI([{role:"user",content:"\u041f\u0440\u0438\u0432\u0435\u0442"}]).then(function(r){hideTyp();loading=false;messages.push({role:"user",content:"\u041f\u0440\u0438\u0432\u0435\u0442"});messages.push({role:"assistant",content:r});addMsg(r,"bot")}).catch(function(){hideTyp();loading=false;addMsg("\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0438\u0442\u044c\u0441\u044f.","bot")})}
+function doSend(){if(loading||booked||bData)return;var t=inputEl.value.trim();if(!t)return;inputEl.value="";inputEl.style.height="40px";addMsg(t,"user");messages.push({role:"user",content:t});loading=true;sendBtn.disabled=true;showTyp();
+callAI(messages).then(function(r){hideTyp();loading=false;sendBtn.disabled=false;messages.push({role:"assistant",content:r});
+var bm=r.match(/<BOOKING_READY>([\s\S]*?)<\/BOOKING_READY>/);
+if(bm){var cr=r.replace(/<BOOKING_READY>[\s\S]*?<\/BOOKING_READY>/,"").trim();if(cr)addMsg(cr,"bot");try{bData=JSON.parse(bm[1].trim());setTimeout(showPicker,500)}catch(e){addMsg("\u041e\u0448\u0438\u0431\u043a\u0430. \u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451.","bot");bData=null}}
+else{addMsg(r,"bot")}
+}).catch(function(){hideTyp();loading=false;sendBtn.disabled=false;addMsg("\u041e\u0448\u0438\u0431\u043a\u0430 \u0441\u043e\u0435\u0434\u0438\u043d\u0435\u043d\u0438\u044f.","bot")})}
+function callAI(m){return fetch(WORKER,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({system:SYS,messages:m})}).then(function(r){return r.json()}).then(function(d){if(d.content&&d.content[0]&&d.content[0].text)return d.content[0].text;throw new Error("err")})}
+function saveBooking(d){var svc=({refrigerator:"refrigerator",ac:"ac",freezer:"freezer"})[d.serviceType]||"other";var dt=d.date+"T"+(d.time||"10:00");var vid="v"+Date.now().toString(36);
+addDoc(collection(db,"clients"),{name:d.name||"",phone:d.phone||"",vehicles:[{id:vid,plate:(d.plate||"").toUpperCase(),brand:d.brand||"",serviceType:svc,notes:"",photo:null}],repairs:[],appointments:[{id:"a"+Date.now().toString(36),vehicleId:vid,date:dt,serviceType:svc,description:"\uD83E\uDD16 \u041e\u043d\u043b\u0430\u0439\u043d: "+(d.problem||"\u0414\u0438\u0430\u0433\u043d\u043e\u0441\u0442\u0438\u043a\u0430")}],createdAt:serverTimestamp(),source:"website-bot"}).then(function(){booked=true;addMsg("\u2705 \u0417\u0430\u043f\u0438\u0441\u0430\u043b\u0438 \u043d\u0430 "+formatDateRu(d.date)+" \u0432 "+d.time+"! \u0416\u0434\u0451\u043c!","system");document.getElementById("rsbot-input-row").style.display="flex";inputEl.placeholder="\u0421\u043f\u0430\u0441\u0438\u0431\u043e!";inputEl.disabled=true;sendBtn.disabled=true}).catch(function(e){addMsg("\u041e\u0448\u0438\u0431\u043a\u0430. \u0417\u0432\u043e\u043d\u0438\u0442\u0435: +7 902 555 1200","bot");document.getElementById("rsbot-input-row").style.display="flex";console.error(e)})}
 </script>
 </body>
 </html>
