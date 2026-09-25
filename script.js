@@ -12,3 +12,10 @@ form?.addEventListener('submit', (event) => {
 document.querySelector('.menu-toggle')?.addEventListener('click', () => {
   document.querySelector('.desktop-nav')?.classList.toggle('mobile-open');
 });
+
+if (!document.querySelector('script[src="assistant.js"]')) {
+  const assistantScript = document.createElement('script');
+  assistantScript.type = 'module';
+  assistantScript.src = 'assistant.js';
+  document.body.appendChild(assistantScript);
+}
