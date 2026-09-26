@@ -54,6 +54,11 @@
 @media(max-width:900px){.service-hero,.service-intro,.service-band-inner{grid-template-columns:1fr;gap:40px}.service-hero{padding-top:70px}.feature-grid{grid-template-columns:repeat(2,1fr)}.service-cta-card{align-items:flex-start;flex-direction:column}.service-main,.service-cta{padding-top:75px;padding-bottom:75px}}
 @media(max-width:560px){.service-hero h1{font-size:52px}.service-hero p{font-size:16px}.service-visual{min-height:280px}.feature-grid{grid-template-columns:1fr}.service-band{padding:65px 0}.service-cta-card{padding:30px 22px}.service-footer-inner{flex-direction:column}}
 
+/* Заголовок переносится только между словами, но никогда внутри слова. */
+.hero h1{word-break:normal;overflow-wrap:normal;hyphens:none}
+@media(min-width:901px){.hero h1{font-size:clamp(44px,4.3vw,72px)}}
+@media(max-width:560px){.hero h1{font-size:clamp(42px,11vw,58px)}}
+
 /* Реальная география Дальнего Востока вместо декоративной схемы. */
 .real-map-visual{padding:0;overflow:hidden;background:#a7d0d0;position:relative}.far-east-map-image{display:block;width:100%;height:100%;min-height:400px;object-fit:contain;object-position:center center}.map-image-vignette{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(7,17,31,.02),rgba(7,17,31,.2))}.map-credit{position:absolute;right:12px;bottom:10px;padding:5px 8px;background:rgba(7,17,31,.72);color:#dcecef;text-decoration:none;font-size:9px;line-height:1.2;letter-spacing:.02em}.map-credit:hover{color:var(--cyan)}
 @media(max-width:900px){.far-east-map-image{min-height:300px}.real-map-visual{min-height:300px}}
