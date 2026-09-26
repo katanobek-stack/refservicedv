@@ -22,7 +22,7 @@ if (!document.querySelector('script[src="assistant.js"]')) {
 
 const tiger = document.createElement('button');
 tiger.type = 'button';
-tiger.className = 'rs-tiger is-sitting';
+tiger.className = 'rs-tiger is-licking';
 tiger.setAttribute('aria-label', 'Открыть чат с ИИ-помощником');
 tiger.setAttribute('title', 'Поговорить с ИИ-помощником');
 const tigerCanvas = document.createElement('canvas');
@@ -32,35 +32,25 @@ tigerCanvas.height = 340;
 tiger.appendChild(tigerCanvas);
 document.body.appendChild(tiger);
 
-const tigerState = 'is-sitting';
-
-const tigerWalk = new Image();
-const tigerPoses = new Image();
-tigerWalk.src = 'assets/mascot/white-tiger-walk.png?v=2';
-tigerPoses.src = 'assets/mascot/white-tiger-sprite.png?v=3';
-const walkFrames = [[14,258,257,199],[271,260,271,199],[555,258,259,199],[814,262,267,197],[1096,262,261,197],[1357,262,271,197],[1629,264,271,197],[1900,260,261,195]];
-const poseFrames = [[38,228,323,323],[362,216,361,321],[724,214,317,345],[1120,178,295,395],[1448,218,335,353],[1818,172,325,405]];
-const poseByState = {'is-sitting':2,'is-stretching':3,'is-shaking':4,'is-alert':5};
+let tigerState = 'is-licking';
+const tigerLick = new Image();
+const tigerYawn = new Image();
+tigerLick.src = 'assets/mascot/tiger-lick.png?v=1';
+tigerYawn.src = 'assets/mascot/tiger-yawn.png?v=1';
+window.setTimeout(function switchToYawn() {
+  tigerState = tigerState === 'is-licking' ? 'is-yawning' : 'is-licking';
+  tiger.className = `rs-tiger ${tigerState}`;
+  window.setTimeout(switchToYawn, tigerState === 'is-yawning' ? 3500 : 6500);
+}, 6500);
 const tigerContext = tigerCanvas.getContext('2d');
-function drawTiger(now) {
-  const moving = tigerState === 'is-walking' || tigerState === 'is-running';
-  const source = moving ? tigerWalk : tigerPoses;
-  const frame = moving
-    ? walkFrames[Math.floor(now / (tigerState === 'is-running' ? 75 : 135)) % walkFrames.length]
-    : poseFrames[poseByState[tigerState] ?? 0];
+function drawTiger() {
+  const source = tigerState === 'is-yawning' ? tigerYawn : tigerLick;
   tigerContext.clearRect(0, 0, tigerCanvas.width, tigerCanvas.height);
   if (source.complete && source.naturalWidth) {
-    const [sx, sy, sw, sh] = frame;
-    const scale = Math.min((tigerCanvas.width - 12) / sw, (tigerCanvas.height - 8) / sh);
-    const width = sw * scale;
-    const height = sh * scale;
-    let yShift = 0;
-    let angle = 0;
-    tigerContext.save();
-    tigerContext.translate(tigerCanvas.width / 2, tigerCanvas.height / 2 + yShift);
-    tigerContext.rotate(angle);
-    tigerContext.drawImage(source, sx, sy, sw, sh, -width / 2, -height / 2, width, height);
-    tigerContext.restore();
+    const scale = Math.min((tigerCanvas.width - 10) / source.naturalWidth, (tigerCanvas.height - 8) / source.naturalHeight);
+    const width = source.naturalWidth * scale;
+    const height = source.naturalHeight * scale;
+    tigerContext.drawImage(source, (tigerCanvas.width - width) / 2, tigerCanvas.height - height, width, height);
   }
   window.requestAnimationFrame(drawTiger);
 }
