@@ -22,30 +22,17 @@ if (!document.querySelector('script[src="assistant.js"]')) {
 
 const tiger = document.createElement('button');
 tiger.type = 'button';
-tiger.className = 'rs-tiger is-grooming';
+tiger.className = 'rs-tiger rs-refik';
 tiger.setAttribute('aria-label', 'Открыть чат с ИИ-помощником');
-tiger.setAttribute('title', 'Поговорить с ИИ-помощником');
-const tigerCanvas = document.createElement('canvas');
-tigerCanvas.className = 'rs-tiger-canvas';
-tigerCanvas.width = 284;
-tigerCanvas.height = 340;
-tiger.appendChild(tigerCanvas);
+tiger.setAttribute('title', 'Рефик — открыть ИИ-помощника');
+tiger.innerHTML = `
+  <span class="refik-motion" aria-hidden="true">
+    <img class="refik-image refik-image--open" src="assets/mascot/refik-open.png?v=1" alt="">
+    <img class="refik-image refik-image--blink" src="assets/mascot/refik-blink-smile.png?v=1" alt="">
+  </span>
+  <span class="refik-message">Чем могу помочь?</span>
+`;
 document.body.appendChild(tiger);
-
-const tigerLick = new Image();
-tigerLick.src = 'assets/mascot/tiger-lick.png?v=2';
-const tigerContext = tigerCanvas.getContext('2d');
-function drawTiger() {
-  tigerContext.clearRect(0, 0, tigerCanvas.width, tigerCanvas.height);
-  if (tigerLick.complete && tigerLick.naturalWidth) {
-    const scale = Math.min((tigerCanvas.width - 10) / tigerLick.naturalWidth, (tigerCanvas.height - 8) / tigerLick.naturalHeight);
-    const width = tigerLick.naturalWidth * scale;
-    const height = tigerLick.naturalHeight * scale;
-    tigerContext.drawImage(tigerLick, (tigerCanvas.width - width) / 2, tigerCanvas.height - height, width, height);
-  }
-}
-tigerLick.addEventListener('load', drawTiger);
-drawTiger();
 
 tiger.addEventListener('click', () => {
   const assistantToggle = document.querySelector('#rsbot-toggle');
