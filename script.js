@@ -32,25 +32,20 @@ tigerCanvas.height = 340;
 tiger.appendChild(tigerCanvas);
 document.body.appendChild(tiger);
 
-const tigerFrames = new Image();
-tigerFrames.src = 'assets/mascot/tiger-groom-yawn-24.png?v=1';
-const tigerFrameColumns = 8;
-const tigerFrameRows = 3;
-const tigerFrameCount = 24;
+const tigerLick = new Image();
+tigerLick.src = 'assets/mascot/tiger-lick.png?v=2';
 const tigerContext = tigerCanvas.getContext('2d');
-function drawTiger(now) {
+function drawTiger() {
   tigerContext.clearRect(0, 0, tigerCanvas.width, tigerCanvas.height);
-  if (tigerFrames.complete && tigerFrames.naturalWidth) {
-    const frame = Math.floor(now / 150) % tigerFrameCount;
-    const frameWidth = tigerFrames.naturalWidth / tigerFrameColumns;
-    const frameHeight = tigerFrames.naturalHeight / tigerFrameRows;
-    const sx = (frame % tigerFrameColumns) * frameWidth;
-    const sy = Math.floor(frame / tigerFrameColumns) * frameHeight;
-    tigerContext.drawImage(tigerFrames, sx, sy, frameWidth, frameHeight, 0, 0, tigerCanvas.width, tigerCanvas.height);
+  if (tigerLick.complete && tigerLick.naturalWidth) {
+    const scale = Math.min((tigerCanvas.width - 10) / tigerLick.naturalWidth, (tigerCanvas.height - 8) / tigerLick.naturalHeight);
+    const width = tigerLick.naturalWidth * scale;
+    const height = tigerLick.naturalHeight * scale;
+    tigerContext.drawImage(tigerLick, (tigerCanvas.width - width) / 2, tigerCanvas.height - height, width, height);
   }
-  window.requestAnimationFrame(drawTiger);
 }
-window.requestAnimationFrame(drawTiger);
+tigerLick.addEventListener('load', drawTiger);
+drawTiger();
 
 tiger.addEventListener('click', () => {
   const assistantToggle = document.querySelector('#rsbot-toggle');
