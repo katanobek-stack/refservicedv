@@ -36,17 +36,27 @@ const tigerFrames = new Image();
 tigerFrames.src = 'assets/mascot/tiger-groom-yawn-24.png?v=1';
 const tigerFrameColumns = 8;
 const tigerFrameRows = 3;
-const tigerFrameCount = 24;
+const tigerFrameCount = 36;
 const tigerContext = tigerCanvas.getContext('2d');
 function drawTiger(now) {
   tigerContext.clearRect(0, 0, tigerCanvas.width, tigerCanvas.height);
   if (tigerFrames.complete && tigerFrames.naturalWidth) {
-    const frame = Math.floor(now / 180) % tigerFrameCount;
+    const frame = Math.floor(now / 130) % tigerFrameCount;
     const frameWidth = tigerFrames.naturalWidth / tigerFrameColumns;
     const frameHeight = tigerFrames.naturalHeight / tigerFrameRows;
-    const sx = (frame % tigerFrameColumns) * frameWidth;
-    const sy = Math.floor(frame / tigerFrameColumns) * frameHeight;
-    tigerContext.drawImage(tigerFrames, sx, sy, frameWidth, frameHeight, 0, 0, tigerCanvas.width, tigerCanvas.height);
+    const sourceFrame = frame * 23 / 35;
+    const firstFrame = Math.floor(sourceFrame);
+    const secondFrame = Math.min(firstFrame + 1, 23);
+    const blend = sourceFrame - firstFrame;
+    const drawFrame = (index, opacity) => {
+      const sx = (index % tigerFrameColumns) * frameWidth;
+      const sy = Math.floor(index / tigerFrameColumns) * frameHeight;
+      tigerContext.globalAlpha = opacity;
+      tigerContext.drawImage(tigerFrames, sx, sy, frameWidth, frameHeight, 0, 0, tigerCanvas.width, tigerCanvas.height);
+    };
+    drawFrame(firstFrame, 1 - blend);
+    if (blend) drawFrame(secondFrame, blend);
+    tigerContext.globalAlpha = 1;
   }
   window.requestAnimationFrame(drawTiger);
 }
