@@ -22,7 +22,7 @@ if (!document.querySelector('script[src="assistant.js"]')) {
 
 const tiger = document.createElement('button');
 tiger.type = 'button';
-tiger.className = 'rs-tiger is-walking';
+tiger.className = 'rs-tiger is-sitting';
 tiger.setAttribute('aria-label', 'Открыть чат с ИИ-помощником');
 tiger.setAttribute('title', 'Поговорить с ИИ-помощником');
 const tigerCanvas = document.createElement('canvas');
@@ -32,24 +32,7 @@ tigerCanvas.height = 340;
 tiger.appendChild(tigerCanvas);
 document.body.appendChild(tiger);
 
-const tigerStates = [
-  ['is-walking', 7000],
-  ['is-running', 8000],
-  ['is-sitting', 5000],
-  ['is-stretching', 4000],
-  ['is-shaking', 3500],
-  ['is-alert', 3500]
-];
-let tigerStateIndex = 0;
-let tigerState = 'is-walking';
-function animateTiger() {
-  const [state, duration] = tigerStates[tigerStateIndex];
-  tigerState = state;
-  tiger.className = `rs-tiger ${state}`;
-  tigerStateIndex = (tigerStateIndex + 1) % tigerStates.length;
-  window.setTimeout(animateTiger, duration);
-}
-animateTiger();
+const tigerState = 'is-sitting';
 
 const tigerWalk = new Image();
 const tigerPoses = new Image();
@@ -73,9 +56,6 @@ function drawTiger(now) {
     const height = sh * scale;
     let yShift = 0;
     let angle = 0;
-    if (tigerState === 'is-sitting') yShift = Math.sin(now / 450) * 3;
-    if (tigerState === 'is-stretching') yShift = Math.sin(now / 650) * 2;
-    if (tigerState === 'is-shaking') angle = Math.sin(now / 38) * 0.045;
     tigerContext.save();
     tigerContext.translate(tigerCanvas.width / 2, tigerCanvas.height / 2 + yShift);
     tigerContext.rotate(angle);
