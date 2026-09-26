@@ -36,6 +36,16 @@ document.body.appendChild(tiger);
 
 // Редкое живое моргание: два согласованных изображения, без деформации исходного PNG.
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const temperatureReading = document.querySelector('#temperatureReading');
+if (temperatureReading) {
+  const temperatureValues = ['−18.4°C', '−18.2°C', '−18.5°C', '−18.3°C', '−18.4°C'];
+  let temperatureIndex = 0;
+  window.setInterval(() => {
+    temperatureIndex = (temperatureIndex + 1) % temperatureValues.length;
+    temperatureReading.textContent = temperatureValues[temperatureIndex];
+  }, 3600);
+}
+
 function scheduleRefikBlink() {
   if (reducedMotion.matches) return;
   const delay = 3200 + Math.random() * 4300;
