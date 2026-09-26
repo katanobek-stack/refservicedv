@@ -34,6 +34,27 @@ tiger.innerHTML = `
 `;
 document.body.appendChild(tiger);
 
+// Редкое живое моргание: два согласованных изображения, без деформации исходного PNG.
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+function scheduleRefikBlink() {
+  if (reducedMotion.matches) return;
+  const delay = 3200 + Math.random() * 4300;
+  window.setTimeout(() => {
+    tiger.classList.add('is-blinking');
+    window.setTimeout(() => {
+      tiger.classList.remove('is-blinking');
+      if (Math.random() < 0.24) {
+        window.setTimeout(() => {
+          tiger.classList.add('is-blinking');
+          window.setTimeout(() => tiger.classList.remove('is-blinking'), 150);
+        }, 210);
+      }
+    }, 170);
+    scheduleRefikBlink();
+  }, delay);
+}
+scheduleRefikBlink();
+
 tiger.addEventListener('click', () => {
   const assistantToggle = document.querySelector('#rsbot-toggle');
   if (assistantToggle) {

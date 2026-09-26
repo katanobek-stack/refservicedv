@@ -13,16 +13,15 @@
 /* Рефик: один неизменный персонаж и 72 шага за шесть секунд (12 кадров/с). */
 .rs-tiger.rs-refik{left:18px;bottom:14px;width:154px;height:184px;overflow:visible;background:none!important;filter:drop-shadow(0 8px 12px rgba(60,190,255,.34));isolation:isolate}
 .rs-tiger.rs-refik:hover{filter:drop-shadow(0 8px 15px rgba(81,218,255,.62)) brightness(1.04)}
-.refik-motion{position:absolute;inset:0;display:block;transform-origin:50% 78%;animation:refik-72-frames 6s steps(72,end) infinite}
+.refik-motion{position:absolute;inset:0;display:block;will-change:transform;animation:refik-breathe 4.4s ease-in-out infinite}
 .refik-image{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center bottom;pointer-events:none;user-select:none}
-.refik-image--blink{opacity:0;animation:refik-blink-72 6s steps(72,end) infinite}
+.refik-image--blink{opacity:0;clip-path:inset(26% 10% 51% 39% round 35%);transition:opacity 55ms ease-in}.rs-refik.is-blinking .refik-image--blink{opacity:1}
 .refik-message{position:absolute;left:118px;bottom:130px;z-index:2;width:max-content;max-width:156px;padding:9px 12px;border:1px solid rgba(103,227,255,.42);border-radius:13px 13px 13px 3px;background:rgba(7,24,42,.94);box-shadow:0 12px 28px rgba(0,0,0,.3);color:#fff;font:700 11px/1.25 Manrope,Arial,sans-serif;letter-spacing:.01em;opacity:0;transform:translateY(8px) scale(.96);pointer-events:none;animation:refik-message-72 9s steps(108,end) infinite}
 .refik-message::before{content:"";position:absolute;left:-5px;bottom:10px;width:9px;height:9px;background:rgba(7,24,42,.94);border-left:1px solid rgba(103,227,255,.42);border-bottom:1px solid rgba(103,227,255,.42);transform:rotate(45deg)}
-@keyframes refik-72-frames{0%,100%{transform:translateX(0) rotate(0deg)}8%{transform:translateX(-3px) rotate(-3.2deg)}22%{transform:translateX(-4px) rotate(-4.5deg)}38%{transform:translateX(0) rotate(0deg)}54%{transform:translateX(4px) rotate(4.5deg)}70%{transform:translateX(3px) rotate(3.2deg)}86%{transform:translateX(0) rotate(0deg)}}
-@keyframes refik-blink-72{0%,34%,42%,100%{opacity:0}36%,40%{opacity:1}76%,80%{opacity:1}}
+@keyframes refik-breathe{0%,100%{transform:translateY(1px)}50%{transform:translateY(-1.5px)}}
 @keyframes refik-message-72{0%,66%{opacity:0;transform:translateY(8px) scale(.96)}70%,94%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(8px) scale(.96)}}
 @media(max-width:560px){.rs-tiger.rs-refik{left:8px;bottom:8px;width:122px;height:146px}.refik-message{left:94px;bottom:102px;font-size:10px;max-width:135px}}
-@media(prefers-reduced-motion:reduce){.refik-motion,.refik-image--blink,.refik-message{animation:none}.refik-message{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.refik-motion,.refik-image--blink,.refik-message{animation:none}.refik-motion{transform:none}.refik-message{opacity:1;transform:none}}
 @media(max-width:560px){.solar-project-card{min-height:250px}.solar-project-copy strong{font-size:27px}}
 @media(min-width:901px){.hero{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}.hero-visual-stack{aspect-ratio:2 / 1}.hero-visual-stack>.hero-visual,.hero-visual-stack>.solar-project-card{height:auto;min-height:0;aspect-ratio:1 / 1}}
 .service-card-media{height:150px;margin:-25px -25px 22px;overflow:hidden;position:relative;background:#0b1b2d}.service-card-media:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,17,31,.05),rgba(7,17,31,.72))}.service-card-media img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.8) contrast(1.05);transition:transform .5s ease,filter .5s ease}.service-card:hover .service-card-media img{transform:scale(1.06);filter:saturate(1) contrast(1.08)}
