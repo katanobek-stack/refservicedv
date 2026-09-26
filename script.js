@@ -24,13 +24,13 @@ const tiger = document.createElement('button');
 tiger.type = 'button';
 tiger.className = 'rs-tiger rs-refik';
 tiger.setAttribute('aria-label', 'Открыть чат с ИИ-помощником');
-tiger.setAttribute('title', 'Рефик — открыть ИИ-помощника');
+tiger.setAttribute('title', 'Айси — открыть ИИ-помощника');
 tiger.innerHTML = `
   <span class="refik-motion" aria-hidden="true">
     <img class="refik-image refik-image--open" src="assets/mascot/refik-open.png?v=1" alt="">
     <img class="refik-image refik-image--blink" src="assets/mascot/refik-blink-smile.png?v=1" alt="">
   </span>
-  <span class="refik-message">Чем могу помочь?</span>
+  <span class="refik-message">Я Айси, чем могу помочь?</span>
 `;
 document.body.appendChild(tiger);
 
