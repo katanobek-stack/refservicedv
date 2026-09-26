@@ -38,6 +38,9 @@
 
 /* Не даём первой строке hero-сетки схлопнуться после добавления GPS-плитки. */
 @media(min-width:901px){.hero-visual-stack{width:100%;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:minmax(260px,1fr) 214px;gap:14px}.hero-visual-stack>.hero-visual,.hero-visual-stack>.solar-project-card{width:100%;height:auto!important;min-height:260px!important;aspect-ratio:1/1!important}.hero-visual-stack>.gps-tracker-card{width:100%;height:214px!important;min-height:214px!important;grid-column:1/-1;aspect-ratio:auto!important}}
+
+/* Старая подпись не должна перекрывать анимированный кузов. */
+.hero-visual .machine-card{display:none}
 @media(max-width:560px){.solar-project-card{min-height:250px}.solar-project-copy strong{font-size:27px}}
 @media(min-width:901px){.hero{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}.hero-visual-stack{aspect-ratio:2 / 1}.hero-visual-stack>.hero-visual,.hero-visual-stack>.solar-project-card{height:auto;min-height:0;aspect-ratio:1 / 1}}
 .service-card-media{height:150px;margin:-25px -25px 22px;overflow:hidden;position:relative;background:#0b1b2d}.service-card-media:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,17,31,.05),rgba(7,17,31,.72))}.service-card-media img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.8) contrast(1.05);transition:transform .5s ease,filter .5s ease}.service-card:hover .service-card-media img{transform:scale(1.06);filter:saturate(1) contrast(1.08)}
