@@ -22,7 +22,7 @@ if (!document.querySelector('script[src="assistant.js"]')) {
 
 const tiger = document.createElement('button');
 tiger.type = 'button';
-tiger.className = 'rs-tiger is-licking';
+tiger.className = 'rs-tiger is-grooming';
 tiger.setAttribute('aria-label', 'Открыть чат с ИИ-помощником');
 tiger.setAttribute('title', 'Поговорить с ИИ-помощником');
 const tigerCanvas = document.createElement('canvas');
@@ -32,25 +32,21 @@ tigerCanvas.height = 340;
 tiger.appendChild(tigerCanvas);
 document.body.appendChild(tiger);
 
-let tigerState = 'is-licking';
-const tigerLick = new Image();
-const tigerYawn = new Image();
-tigerLick.src = 'assets/mascot/tiger-lick.png?v=1';
-tigerYawn.src = 'assets/mascot/tiger-yawn.png?v=1';
-window.setTimeout(function switchToYawn() {
-  tigerState = tigerState === 'is-licking' ? 'is-yawning' : 'is-licking';
-  tiger.className = `rs-tiger ${tigerState}`;
-  window.setTimeout(switchToYawn, tigerState === 'is-yawning' ? 3500 : 6500);
-}, 6500);
+const tigerFrames = new Image();
+tigerFrames.src = 'assets/mascot/tiger-groom-yawn-24.png?v=1';
+const tigerFrameColumns = 8;
+const tigerFrameRows = 3;
+const tigerFrameCount = 24;
 const tigerContext = tigerCanvas.getContext('2d');
-function drawTiger() {
-  const source = tigerState === 'is-yawning' ? tigerYawn : tigerLick;
+function drawTiger(now) {
   tigerContext.clearRect(0, 0, tigerCanvas.width, tigerCanvas.height);
-  if (source.complete && source.naturalWidth) {
-    const scale = Math.min((tigerCanvas.width - 10) / source.naturalWidth, (tigerCanvas.height - 8) / source.naturalHeight);
-    const width = source.naturalWidth * scale;
-    const height = source.naturalHeight * scale;
-    tigerContext.drawImage(source, (tigerCanvas.width - width) / 2, tigerCanvas.height - height, width, height);
+  if (tigerFrames.complete && tigerFrames.naturalWidth) {
+    const frame = Math.floor(now / 180) % tigerFrameCount;
+    const frameWidth = tigerFrames.naturalWidth / tigerFrameColumns;
+    const frameHeight = tigerFrames.naturalHeight / tigerFrameRows;
+    const sx = (frame % tigerFrameColumns) * frameWidth;
+    const sy = Math.floor(frame / tigerFrameColumns) * frameHeight;
+    tigerContext.drawImage(tigerFrames, sx, sy, frameWidth, frameHeight, 0, 0, tigerCanvas.width, tigerCanvas.height);
   }
   window.requestAnimationFrame(drawTiger);
 }
