@@ -5,7 +5,7 @@
 ## Настройка
 
 1. Создайте KV namespace для `RATE_LIMIT_KV` и подставьте его ID в `wrangler.toml`.
-2. Установите секреты: `ANTHROPIC_API_KEY`, проверенное актуальное `ANTHROPIC_MODEL`, `INQUIRY_WEBHOOK_URL`; при необходимости `INQUIRY_WEBHOOK_TOKEN` и `TURNSTILE_SECRET`.
+2. Установите секреты: `ANTHROPIC_API_KEY`, проверенное актуальное `ANTHROPIC_MODEL` и один канал заявок: `INQUIRY_WEBHOOK_URL` (рекомендуется для CRM) либо `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`; при необходимости `INQUIRY_WEBHOOK_TOKEN` и `TURNSTILE_SECRET`.
 3. Проверьте актуальное имя модели Anthropic перед публикацией. Worker намеренно не принимает неизвестные модели.
 4. Разверните Worker на `api.refservicedv.ru` и задайте в корневом `config.js` адрес `https://api.refservicedv.ru`.
 5. Сначала проверьте тестовым webhook и ограниченным бюджетом Anthropic, затем подключайте CRM.

@@ -63,8 +63,15 @@ async function handleInquiry(request, env, body) {
   }
   const inquiry = { name: clean(body.name, 120), phone: clean(body.phone, 40), brand: clean(body.brand, 120), plate: clean(body.plate, 40), serviceType: clean(body.serviceType, 40), problem: clean(body.problem, 2000), desiredDate: clean(body.desiredDate, 20), desiredTime: clean(body.desiredTime, 10), timeZone: 'Asia/Vladivostok', source: 'website' };
   if (!inquiry.name || !inquiry.phone || !inquiry.problem) return json({ error: 'required_fields' }, 400, request, env);
-  if (!env.INQUIRY_WEBHOOK_URL) return json({ error: 'inquiry_not_configured' }, 503, request, env);
-  const response = await fetch(env.INQUIRY_WEBHOOK_URL, { method: 'POST', headers: { 'content-type': 'application/json', ...(env.INQUIRY_WEBHOOK_TOKEN ? { Authorization: `Bearer ${env.INQUIRY_WEBHOOK_TOKEN}` } : {}) }, body: JSON.stringify(inquiry) });
+  let response;
+  if (env.INQUIRY_WEBHOOK_URL) {
+    response = await fetch(env.INQUIRY_WEBHOOK_URL, { method: 'POST', headers: { 'content-type': 'application/json', ...(env.INQUIRY_WEBHOOK_TOKEN ? { Authorization: `Bearer ${env.INQUIRY_WEBHOOK_TOKEN}` } : {}) }, body: JSON.stringify(inquiry) });
+  } else if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {
+    const text = [`Новая заявка с сайта RefServiceDV`, `Имя: ${inquiry.name}`, `Телефон: ${inquiry.phone}`, `Услуга: ${inquiry.serviceType || 'не указана'}`, `Оборудование: ${inquiry.brand || 'не указано'}`, `Задача: ${inquiry.problem}`, `Пожелание: ${inquiry.desiredDate || '—'} ${inquiry.desiredTime || ''}`].join('\n');
+    response = await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text }) });
+  } else {
+    return json({ error: 'inquiry_not_configured' }, 503, request, env);
+  }
   if (!response.ok) return json({ error: 'inquiry_delivery_failed' }, 502, request, env);
   return json({ accepted: true }, 202, request, env);
 }
