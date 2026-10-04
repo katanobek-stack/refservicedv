@@ -75,14 +75,6 @@ tiger.innerHTML = `
 `;
 document.body.appendChild(tiger);
 
-if (document.body.classList.contains('service-page')) {
-  const setServiceMascotVisibility = () => {
-    tiger.classList.toggle('is-service-hero-hidden', window.scrollY < 260);
-  };
-  setServiceMascotVisibility();
-  window.addEventListener('scroll', setServiceMascotVisibility, { passive: true });
-}
-
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const temperatureReading = document.querySelector('#temperatureReading');
 if (temperatureReading && !reducedMotion.matches) {
