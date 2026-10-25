@@ -18,3 +18,7 @@ Use case: ads-marketing. Generate one landscape photorealistic architectural ser
 
 Use case: ads-marketing. Generate one landscape photorealistic service illustration for an industrial refrigeration engineering website. A walk-in industrial blast freezing chamber with large insulated door opened, stainless steel trolley loaded with trays of uniform unbranded food portions partly inside, large industrial evaporator fan wall visible inside with unobstructed airflow. Show complete chamber opening, trolley, door and meaningful surrounding exterior, clean commercial food production environment, realistic scale, no household appliances. Cool white panels and brushed stainless steel with restrained blue details, soft neutral daylight, clear technical product architecture photography. No excessive fog, no glowing sci-fi effects, no people, no text, no logos, no watermark. Landscape 3:2, full equipment and process legible.
 
+
+The monitoring homepage card now uses assets/services/monitoring-route.svg, a code-native illustration of route, temperature history and notifications instead of an unrelated SCADA screenshot. Homepage CSS cache key is bumped for returning visitors.
+
+Validation: existing site_check.py and three contact-form Node tests pass. Browser review at desktop and a 480 CSS-pixel iframe: all seven service pages loaded without broken images, horizontal overflow or overflowing headings/forms. Menu opened and closed, Contacts reached the form. No 320/390 checks performed, respecting the owner's request.
