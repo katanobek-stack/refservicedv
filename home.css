@@ -8,3 +8,4 @@
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
 .service-card-content{min-width:0}
 @media(max-width:370px){.service-type-1 h3{font-size:26px}.service-type-2 h3{font-size:25px}.service-type-3,.service-type-4,.service-type-5{display:flex}.service-type-3 .service-card-media,.service-type-4 .service-card-media,.service-type-5 .service-card-media{height:140px;min-height:140px}.service-type-3 .service-card-content,.service-type-4 .service-card-content,.service-type-5 .service-card-content{padding:22px}.service-type-3 h3,.service-type-4 h3,.service-type-5 h3{font-size:22px;overflow-wrap:normal}}
+.service-card-media{position:relative}.card-image-note{position:absolute;bottom:10px;left:12px;border-radius:4px;background:#ffffffed;color:#576C7B;font-size:9px;padding:4px 7px}
