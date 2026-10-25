@@ -1,42 +1,43 @@
+// GitHub Pages is a static site. This form prepares a message; it does not
+// create a CRM record, send a notification, or claim delivery to the engineer.
 const form = document.querySelector('#leadForm');
-const toast = document.querySelector('.toast');
 
-function normalizePhone(value) {
-  return String(value || '').replace(/[^\d+]/g, '').replace(/^8/, '+7');
+if (form) {
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+    const data = new FormData(form);
+    const name = String(data.get('name') || '').trim();
+    const message = String(data.get('message') || '').trim();
+    const status = form.querySelector('.form-status');
+    if (!message) {
+      form.querySelector('[name="message"]').setCustomValidity('Опишите задачу.');
+      form.reportValidity();
+      return;
+    }
+    const service = form.dataset.service || 'Консультация по холодильному оборудованию';
+    const text = [
+      'Здравствуйте! Обращение с сайта RefServiceDV.',
+      `Услуга: ${service}`,
+      name ? `Имя: ${name}` : '',
+      `Задача: ${message}`,
+      `Страница: https://refservicedv.ru${window.location.pathname}`
+    ].filter(Boolean).join('\n');
+    const whatsappUrl = `https://wa.me/79025551200?text=${encodeURIComponent(text)}`;
+    status.replaceChildren(document.createTextNode('Сообщение ещё не отправлено. Нажмите «Отправить» в WhatsApp. Если приложение не открылось: '));
+    const link = document.createElement('a');
+    link.href = whatsappUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = 'открыть подготовленное сообщение';
+    status.append(link);
+    status.hidden = false;
+    // Keep the text and fallback link available even when a popup is blocked.
+    // A new tab is not evidence that a message has been delivered.
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+  });
+  form.querySelector('[name="message"]').addEventListener('input', (event) => event.target.setCustomValidity(''));
 }
-
-function showPreparedMessage(message, whatsappUrl) {
-  if (!toast) return;
-  toast.innerHTML = '';
-  toast.append(document.createTextNode(message + ' '));
-  const link = document.createElement('a');
-  link.href = whatsappUrl;
-  link.target = '_blank';
-  link.rel = 'noopener';
-  link.textContent = 'Открыть WhatsApp';
-  link.style.color = 'inherit';
-  link.style.textDecoration = 'underline';
-  toast.append(link);
-  toast.classList.add('show');
-  window.setTimeout(() => toast.classList.remove('show'), 7000);
-}
-
-form?.addEventListener('submit', (event) => {
-  event.preventDefault();
-  const data = new FormData(form);
-  const phone = normalizePhone(data.get('phone'));
-  if (phone.replace(/\D/g, '').length < 10) {
-    form.querySelector('[name="phone"]')?.focus();
-    showPreparedMessage('Проверьте номер телефона.', '#contacts');
-    return;
-  }
-  const text = `Здравствуйте! Меня зовут ${data.get('name')}. Телефон: ${data.get('phone')}. Задача: ${data.get('message') || 'нужна консультация по холодильному оборудованию'}`;
-  const whatsappUrl = `https://wa.me/79025551200?text=${encodeURIComponent(text)}`;
-  showPreparedMessage('Сообщение подготовлено. Если WhatsApp не открылся, нажмите ссылку:', whatsappUrl);
-  const popup = window.open(whatsappUrl, '_blank', 'noopener');
-  if (!popup) return;
-  form.reset();
-});
 
 const menuToggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.desktop-nav');
@@ -53,60 +54,3 @@ if (menuToggle && nav) {
   nav.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => setMenu(false)));
   document.addEventListener('keydown', (event) => { if (event.key === 'Escape') setMenu(false); });
 }
-
-if (!document.querySelector('script[src="assistant.js"]')) {
-  const assistantScript = document.createElement('script');
-  assistantScript.type = 'module';
-  assistantScript.src = 'assistant.js';
-  document.body.appendChild(assistantScript);
-}
-
-const tiger = document.createElement('button');
-tiger.type = 'button';
-tiger.className = 'rs-tiger rs-refik';
-tiger.setAttribute('aria-label', 'Открыть чат с ИИ-помощником');
-tiger.setAttribute('title', 'Айси — открыть ИИ-помощника');
-tiger.innerHTML = `
-  <span class="refik-motion" aria-hidden="true">
-    <img class="refik-image refik-image--open" src="assets/mascot/refik-open.png?v=1" alt="">
-    <img class="refik-image refik-image--blink" src="assets/mascot/refik-blink-smile.png?v=1" alt="">
-  </span>
-  <span class="refik-message">Я Айси, чем могу помочь?</span>
-`;
-document.body.appendChild(tiger);
-
-const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-const temperatureReading = document.querySelector('#temperatureReading');
-if (temperatureReading && !reducedMotion.matches) {
-  const temperatureValues = ['−18.4°C', '−18.2°C', '−18.5°C', '−18.3°C', '−18.4°C'];
-  let temperatureIndex = 0;
-  window.setInterval(() => {
-    temperatureIndex = (temperatureIndex + 1) % temperatureValues.length;
-    temperatureReading.textContent = temperatureValues[temperatureIndex];
-  }, 3600);
-}
-
-function scheduleRefikBlink() {
-  if (reducedMotion.matches) return;
-  const delay = 3200 + Math.random() * 4300;
-  window.setTimeout(() => {
-    tiger.classList.add('is-blinking');
-    window.setTimeout(() => {
-      tiger.classList.remove('is-blinking');
-      if (Math.random() < 0.24) {
-        window.setTimeout(() => {
-          tiger.classList.add('is-blinking');
-          window.setTimeout(() => tiger.classList.remove('is-blinking'), 150);
-        }, 210);
-      }
-    }, 170);
-    scheduleRefikBlink();
-  }, delay);
-}
-scheduleRefikBlink();
-
-tiger.addEventListener('click', () => {
-  const assistantToggle = document.querySelector('#rsbot-toggle');
-  if (assistantToggle) assistantToggle.click();
-  else window.setTimeout(() => document.querySelector('#rsbot-toggle')?.click(), 400);
-});
